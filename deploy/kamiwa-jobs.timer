@@ -1,0 +1,13 @@
+[Unit]
+Description=Process Kamiwa bounded jobs every five minutes
+
+[Timer]
+OnBootSec=90s
+# Each run starts a full Django process; on the 1 GB reference server a per-minute run
+# kept evicting the web worker from memory. The outbox page does not wait for delivery.
+OnUnitActiveSec=5min
+AccuracySec=30s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

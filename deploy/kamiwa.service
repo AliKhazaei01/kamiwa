@@ -1,0 +1,23 @@
+[Unit]
+Description=Kamiwa test marketplace
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+User=kamiwa
+Group=kamiwa
+WorkingDirectory=/srv/kamiwa
+EnvironmentFile=/etc/kamiwa.env
+ExecStart=/srv/kamiwa/.venv/bin/gunicorn kamiwa.wsgi:application --bind 127.0.0.1:8000 --workers 1 --threads 2 --preload --timeout 120 --max-requests 1000 --max-requests-jitter 100 --error-logfile -
+Restart=on-failure
+RestartSec=5
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/kamiwa/media /srv/kamiwa/private_media
+MemoryMax=350M
+
+[Install]
+WantedBy=multi-user.target

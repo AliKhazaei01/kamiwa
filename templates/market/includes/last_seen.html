@@ -1,0 +1,1 @@
+{% load market_numbers %}{% if account.is_online %}<span class="status-badge approved"><span class="online-dot" aria-hidden="true"></span> آنلاین</span>{% elif account.last_seen_at %}<time datetime="{{ account.last_seen_at|date:'c' }}">{{ account.last_seen_at|timesince|fa_digits }} پیش</time>{% else %}<span class="muted">ثبت نشده</span>{% endif %}

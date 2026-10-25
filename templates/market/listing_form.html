@@ -1,0 +1,33 @@
+{% extends 'base.html' %}{% load market_numbers %}{% block title %}{{ title }} | کامیوا{% endblock %}{% block content %}<div class="shell panel-layout">{% include 'market/includes/panel_nav.html' %}<section class="panel-main">
+<div class="page-heading"><div><h1>{% include 'market/includes/emoji.html' with name='truck' size=40 %} {{ title|default:'ثبت آگهی' }}</h1><p>مشخصات دقیق و تصاویر روشن، به تصمیم بهتر خریدار کمک می‌کنند.</p></div></div>
+<div class="notice">{% include 'market/includes/emoji.html' with name='bell' size=22 %} محتوا و مشخصات پس از تأیید مدیریت منتشر می‌شوند. {% if listing %}نسخه تأییدشده فعلی تا بررسی تغییرات باقی می‌ماند. برای تغییر فوری قیمت از <a href="{% url 'market:listing_price' listing.pk %}"><strong>به‌روزرسانی قیمت</strong></a> استفاده کنید.{% endif %}</div>
+<div class="form-layout">
+<form class="form-stack" method="post" enctype="multipart/form-data">{% csrf_token %}
+  {% if form.non_field_errors %}<div class="notice error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+  <section class="card form-card"><div class="card-head"><h2>{% include 'market/includes/emoji.html' with name='clipboard' size=28 %} مشخصات اصلی</h2></div>
+    <div class="form-grid">{% include 'market/includes/field.html' with field=form.title %}{% include 'market/includes/field.html' with field=form.category %}{% include 'market/includes/field.html' with field=form.brand %}{% include 'market/includes/field.html' with field=form.model %}{% include 'market/includes/field.html' with field=form.year %}{% include 'market/includes/field.html' with field=form.mileage %}</div>
+  </section>
+  <section class="card form-card"><div class="card-head"><h2>{% include 'market/includes/emoji.html' with name='money-bag' size=28 %} محل و قیمت</h2></div>
+    <div class="form-grid">{% include 'market/includes/field.html' with field=form.province %}{% include 'market/includes/field.html' with field=form.city %}{% include 'market/includes/field.html' with field=form.price %}{% include 'market/includes/field.html' with field=form.negotiability %}</div>
+  </section>
+  <section class="card form-card"><div class="card-head"><h2>{% include 'market/includes/emoji.html' with name='memo' size=28 %} توضیحات</h2></div>
+    {% include 'market/includes/field.html' with field=form.description %}
+  </section>
+  <section class="card form-card"><div class="card-head"><h2>{% include 'market/includes/emoji.html' with name='camera' size=28 %} تصاویر{% if form.videos %} و ویدیو{% endif %}</h2></div>
+    {% if existing_images or existing_videos %}<fieldset class="media-manager"><legend>تصاویر و ویدیوهای فعلی</legend><p class="help-text">برای حذف، مورد را علامت بزنید و فرم را ارسال کنید.</p><div class="media-grid">{% for picture in existing_images %}<label class="media-tile"><img src="{{ picture.image.url }}" alt="تصویر {{ forloop.counter|fa_digits }}" width="160" height="110"><span><input type="checkbox" name="remove_image" value="{{ picture.pk }}"> حذف{% if not picture.approved %} · در انتظار تأیید{% endif %}</span></label>{% endfor %}{% for clip in existing_videos %}<label class="media-tile"><video preload="metadata" muted width="160" height="110"><source src="{{ clip.video.url }}" type="{{ clip.content_type }}"></video><span><input type="checkbox" name="remove_video" value="{{ clip.pk }}"> حذف ویدیو {{ forloop.counter|fa_digits }}{% if not clip.approved %} · در انتظار تأیید{% endif %}</span></label>{% endfor %}</div></fieldset>{% endif %}
+    <div class="upload-grid">{% include 'market/includes/field.html' with field=form.images %}{% if form.videos %}{% include 'market/includes/field.html' with field=form.videos %}{% endif %}</div>
+  </section>
+  <div class="form-actions sticky-actions"><button class="button button-amber" type="submit">{% include 'market/includes/icon.html' with name='check' %} ارسال برای بررسی</button><a class="button" href="{% url 'market:dashboard' %}">بازگشت به پنل</a></div>
+</form>
+<aside class="tips-card" aria-label="راهنمای آگهی بهتر">
+  {% include 'market/includes/emoji.html' with name='bulb' size=56 %}
+  <h2>آگهی بهتر، فروش سریع‌تر</h2>
+  <ul>
+    <li>{% include 'market/includes/emoji.html' with name='camera' size=24 %} تصاویر روشن از جلو، کنار، کابین و موتور بگذارید.</li>
+    <li>{% include 'market/includes/emoji.html' with name='memo' size=24 %} سابقه سرویس، لاستیک‌ها و اسناد را در توضیحات بنویسید.</li>
+    <li>{% include 'market/includes/emoji.html' with name='chart' size=24 %} قیمت را با آگهی‌های مشابه مقایسه کنید.</li>
+    <li>{% include 'market/includes/emoji.html' with name='shield' size=24 %} درخواست کارشناسی، اعتماد خریدار را بیشتر می‌کند.</li>
+  </ul>
+</aside>
+</div>
+</section></div>{% endblock %}

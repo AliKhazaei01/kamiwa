@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% load market_numbers %}{% block title %}مقایسه آگهی‌ها | کامیوا{% endblock %}{% block content %}<div class="shell page-wrap">
+<div class="page-hero compact"><div><h1>{% include 'market/includes/emoji.html' with name='balance' size=48 loading='eager' class='float' %} مقایسه آگهی‌ها</h1><p>مشخصات حداکثر سه ماشین را کنار هم بررسی کنید.</p></div><a class="button" href="{% url 'market:home' %}">{% include 'market/includes/icon.html' with name='plus' %} انتخاب آگهی</a></div>
+{% if listings %}<div class="table-scroll compare-scroll" tabindex="0" role="region" aria-label="جدول مقایسه؛ برای دیدن همه ستون‌ها پیمایش افقی کنید"><table class="compare-table v3-compare"><caption class="sr-only">مقایسه مشخصات، قیمت و کارشناسی آگهی‌های انتخاب‌شده</caption>
+<thead><tr><th scope="col">ویژگی</th>{% for listing in listings %}<th scope="col" class="compare-head"><div class="compare-photo"><img src="{{ listing.image_url }}" alt="{{ listing.title }}" width="320" height="180">{% if best.price == listing.pk %}<span class="best-chip">{% include 'market/includes/emoji.html' with name='money-bag' size=20 %} ارزان‌ترین</span>{% endif %}</div><h2><a href="{% url 'market:listing_detail' listing.pk %}">{{ listing.title }}</a></h2><form method="post" action="{% url 'market:compare_toggle' listing.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="text-button button-danger" type="submit">{% include 'market/includes/icon.html' with name='close' %} حذف از مقایسه</button></form></th>{% endfor %}</tr></thead>
+<tbody>
+<tr><th scope="row">قیمت پیشنهادی</th>{% for listing in listings %}<td{% if best.price == listing.pk %} class="is-best"{% endif %}><strong class="compare-price">{{ listing.price|intcomma }} <small>تومان</small></strong></td>{% endfor %}</tr>
+<tr><th scope="row">قیمت کارشناسی</th>{% for listing in listings %}<td>{% if listing.expert_price %}<span class="expert-chip">{% include 'market/includes/icon.html' with name='shield' %} {{ listing.expert_price|intcomma }} تومان</span><p class="help-text">{{ listing.expert_date|jdate }}</p>{% else %}<span class="muted">کارشناسی نهایی ندارد</span>{% endif %}</td>{% endfor %}</tr>
+<tr><th scope="row">شرایط مذاکره</th>{% for listing in listings %}<td>{{ listing.get_negotiability_display }}</td>{% endfor %}</tr>
+<tr><th scope="row">دسته‌بندی</th>{% for listing in listings %}<td>{{ listing.category }}</td>{% endfor %}</tr>
+<tr><th scope="row">برند</th>{% for listing in listings %}<td>{{ listing.brand }}</td>{% endfor %}</tr>
+<tr><th scope="row">مدل</th>{% for listing in listings %}<td>{{ listing.model }}</td>{% endfor %}</tr>
+<tr><th scope="row">سال ساخت</th>{% for listing in listings %}<td{% if best.year == listing.pk %} class="is-best"{% endif %}>{{ listing.year|fa_digits }}{% if best.year == listing.pk %} <span class="best-tag">جدیدترین</span>{% endif %}</td>{% endfor %}</tr>
+<tr><th scope="row">کارکرد</th>{% for listing in listings %}<td{% if best.mileage == listing.pk %} class="is-best"{% endif %}>{{ listing.mileage|intcomma }} کیلومتر{% if best.mileage == listing.pk %} <span class="best-tag">کم‌کارکردترین</span>{% endif %}</td>{% endfor %}</tr>
+<tr><th scope="row">محل</th>{% for listing in listings %}<td>{{ listing.province }}، {{ listing.city }}</td>{% endfor %}</tr>
+<tr><th scope="row">فروشنده</th>{% for listing in listings %}<td>{{ listing.owner.display_name }}</td>{% endfor %}</tr>
+<tr><th scope="row">جزئیات</th>{% for listing in listings %}<td><a class="button button-primary" href="{% url 'market:listing_detail' listing.pk %}">مشاهده آگهی</a></td>{% endfor %}</tr>
+</tbody></table></div>
+{% if listings|length < 3 %}<p class="compare-hint">{% include 'market/includes/emoji.html' with name='bulb' size=24 %} می‌توانید تا سه آگهی را کنار هم مقایسه کنید.</p>{% endif %}
+{% else %}{% url 'market:home' as market_url %}{% include 'market/includes/empty.html' with heading='هنوز آگهی‌ای برای مقایسه انتخاب نکرده‌اید' description='دکمه مقایسه را روی آگهی‌های دلخواه خود بزنید.' action_url=market_url action_label='مشاهده آگهی‌ها' emoji='balance' %}{% endif %}
+</div>{% endblock %}

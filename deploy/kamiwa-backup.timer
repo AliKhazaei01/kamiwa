@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the Kamiwa backup every day at 03:00 Tehran time
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 Asia/Tehran
+RandomizedDelaySec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

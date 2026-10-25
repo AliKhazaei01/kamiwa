@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+cd /srv/kamiwa
+set -a
+. /etc/kamiwa.env
+set +a
+if [ "$(id -un)" = kamiwa ]; then
+    exec .venv/bin/python manage.py "$@"
+fi
+exec runuser --preserve-environment -u kamiwa -- .venv/bin/python manage.py "$@"

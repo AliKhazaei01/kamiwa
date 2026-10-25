@@ -1,0 +1,17 @@
+{% load market_numbers %}
+<section class="surface section-gap" aria-labelledby="activity-heading">
+  <div class="section-heading"><h2 id="activity-heading">بازدیدهای هفت روز گذشته</h2><span class="muted small">بر اساس فعالیت واقعی حساب</span></div>
+  <p class="help-text" id="activity-description">بازدید هر کاربر از هر آگهی یا صفحه، در هر روز یک بار شمرده می‌شود. برای دیدن مقدار هر روز، نشانگر را روی ستون ببرید یا با Tab روی آن بروید.</p>
+  <div class="chart-legend" aria-hidden="true"><span><i class="legend-swatch listing-views"></i> بازدید آگهی</span><span><i class="legend-swatch page-views"></i> بازدید صفحه</span></div>
+  <div class="activity-chart" role="group" aria-label="نمودار بازدید آگهی‌ها و صفحه در هفت روز گذشته" aria-describedby="activity-description">
+    <div class="chart-axis" aria-hidden="true"><span>{{ activity_max|intcomma }}</span><span>{{ activity_half|intcomma }}</span><span>۰</span></div>
+    <div class="chart-plot">
+      {% for point in activity_series %}<div class="chart-day" tabindex="0" aria-label="{{ point.jalali|fa_digits }}: {{ point.views|intcomma }} بازدید آگهی و {{ point.page_views|intcomma }} بازدید صفحه">
+        <svg viewBox="0 0 40 140" width="40" height="140" aria-hidden="true" focusable="false"><g transform="translate(0 140) scale(1 -1)">{% widthratio point.views activity_max 140 as listing_height %}{% widthratio point.page_views activity_max 140 as page_height %}{% if point.views %}<rect class="listing-views" x="4" y="0" width="15" height="{{ listing_height }}" rx="4"></rect><rect class="listing-views" x="4" y="0" width="15" height="4"></rect>{% endif %}{% if point.page_views %}<rect class="page-views" x="21" y="0" width="15" height="{{ page_height }}" rx="4"></rect><rect class="page-views" x="21" y="0" width="15" height="4"></rect>{% endif %}</g></svg>
+        <span class="chart-tip" aria-hidden="true"><strong>{{ point.jalali|fa_digits }}</strong><span><i class="legend-swatch listing-views"></i> {{ point.views|intcomma }} بازدید آگهی</span><span><i class="legend-swatch page-views"></i> {{ point.page_views|intcomma }} بازدید صفحه</span></span>
+        <time datetime="{{ point.date|date:'Y-m-d' }}">{{ point.label|fa_digits }}</time>
+      </div>{% endfor %}
+    </div>
+  </div>
+  <details class="chart-values"><summary>مشاهده مقادیر روزانه</summary><div class="table-scroll" role="region" aria-label="جدول بازدیدها و علاقه‌مندی‌های هفت روز گذشته" tabindex="0"><table><caption class="sr-only">مقادیر روزانه فعالیت حساب</caption><thead><tr><th scope="col">تاریخ</th><th scope="col">بازدید آگهی</th><th scope="col">بازدید صفحه</th><th scope="col">علاقه‌مندی ثبت‌شده و باقی‌مانده</th></tr></thead><tbody>{% for point in activity_series %}<tr><th scope="row">{{ point.jalali|fa_digits }}</th><td>{{ point.views|intcomma }}</td><td>{{ point.page_views|intcomma }}</td><td>{{ point.favorites|intcomma }}</td></tr>{% endfor %}</tbody></table></div></details>
+</section>

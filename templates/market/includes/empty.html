@@ -1,0 +1,1 @@
+<div class="empty-state">{% include 'market/includes/emoji.html' with name=emoji|default:'search' size=72 %}<h2>{{ heading|default:'هنوز موردی ثبت نشده است' }}</h2><p>{{ description|default:'موارد جدید پس از ثبت در این بخش نمایش داده می‌شوند.' }}</p>{% if action_url %}<a class="button button-primary" href="{{ action_url }}">{{ action_label }}</a>{% endif %}</div>

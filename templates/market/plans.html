@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% load market_numbers %}{% block title %}اشتراک کامیوا{% endblock %}{% block content %}<div class="shell page-wrap">
+<header class="page-hero">
+  {% include 'market/includes/emoji.html' with name='gem' size=72 class='float' loading='eager' %}
+  <div><span class="eyebrow">اشتراک‌ها</span><h1>اشتراک مناسب فعالیت شما</h1><p>قیمت و مدت هر بسته را بررسی و اشتراک حساب خود را فعال یا تمدید کنید.</p></div>
+</header>
+{% if request.user.days_remaining %}<div class="notice success status-strip">{% include 'market/includes/emoji.html' with name='hourglass' size=28 %}<span>اشتراک {{ request.user.get_role_display }} شما {{ request.user.days_remaining|intcomma }} روز اعتبار دارد. تمدید به اعتبار باقی‌مانده اضافه می‌شود.</span></div>{% endif %}
+<div class="plans-grid">{% for plan in plans %}
+<article class="plan-card{% if plan.role == 'pro' %} pro{% endif %}{% if request.user.role == plan.role %} is-current{% endif %}">
+  {% if request.user.role == plan.role %}<span class="plan-ribbon">بسته حساب شما</span>{% endif %}
+  {% if plan.role == 'pro' %}{% include 'market/includes/emoji.html' with name='crown' size=64 %}{% elif plan.role == 'plus' %}{% include 'market/includes/emoji.html' with name='star' size=64 %}{% else %}{% include 'market/includes/emoji.html' with name='search' size=64 %}{% endif %}
+  <h2>{{ plan.name }}</h2>
+  <p class="plan-description">{% if plan.role == 'pro' %}ویترین حرفه‌ای نمایشگاه شما{% elif plan.role == 'plus' %}برای فروشندگان و معامله‌گران حرفه‌ای{% else %}برای یافتن و مقایسه ماشین مناسب{% endif %}</p>
+  <div class="plan-price">{{ plan.price|intcomma }} <small>تومان</small></div>
+  <p class="help-text">برای {{ plan.duration_days|intcomma }} روز اشتراک</p>
+  <ul>{% if plan.role == 'pro' %}<li>۵۰ آگهی فعال در هر دسته اصلی</li><li>صفحه اختصاصی نمایشگاه با آیدی کوتاه</li><li>مدیریت محتوا، بازدیدها و قیمت‌ها</li>{% elif plan.role == 'plus' %}<li>۲۵ آگهی فعال در هر دسته اصلی</li><li>صفحه اختصاصی با هویت شخصی</li><li>نگهداری ۵۰ آگهی فروخته‌شده</li>{% else %}<li>دسترسی کامل به آگهی‌ها و جست‌وجو</li><li>مقایسه هم‌زمان سه آگهی</li><li>ذخیره علاقه‌مندی‌ها و تماس مستقیم</li>{% endif %}<li>امکان درخواست کارشناسی با هزینه جداگانه</li><li>پشتیبانی از طریق تیکت</li></ul>
+  {% if request.user.role == plan.role %}<form method="post">{% csrf_token %}<input type="hidden" name="plan" value="{{ plan.pk }}"><button class="button button-amber button-wide" type="submit">{% if request.user.days_remaining %}تمدید{% else %}فعال‌سازی{% endif %} اشتراک آزمایشی</button></form>{% else %}<p class="notice small">این بسته برای حساب {{ plan.get_role_display }} است. نوع حساب فعلی شما {{ request.user.get_role_display }} است.</p>{% endif %}
+</article>{% empty %}{% include 'market/includes/empty.html' with heading='بسته‌ای فعال نیست' description='به‌زودی بسته‌های اشتراک در دسترس قرار می‌گیرند.' emoji='hourglass' %}{% endfor %}</div>
+<div class="notice section-gap status-strip">{% include 'market/includes/emoji.html' with name='card' size=28 %}<span>پرداخت‌ها در این نسخه آزمایشی هستند؛ مبلغی از حساب بانکی برداشت نمی‌شود. امکانات بازار پس از تأیید هویت فعال می‌شوند.</span></div>
+</div>{% endblock %}

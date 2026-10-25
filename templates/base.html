@@ -1,0 +1,48 @@
+{% load static %}<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0A0A0A"><meta name="description" content="کامیوا؛ بازار تخصصی خرید، فروش و کارشناسی ماشین‌های سنگین">
+  <meta name="htmx-config" content='{"includeIndicatorStyles":false,"allowEval":false,"allowScriptTags":false}'>
+  <title>{% block title %}کامیوا | بازار ماشین‌های سنگین{% endblock %}</title>
+  <link rel="preload" href="{% static 'kamiwa/fonts/Vazirmatn.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'kamiwa/app.css' %}">
+  <link rel="stylesheet" href="{% static 'kamiwa/ui.css' %}">
+  <link rel="stylesheet" href="{% static 'kamiwa/v3.css' %}">
+  <link rel="stylesheet" href="{% static 'kamiwa/luxe.css' %}">
+  <script src="{% static 'kamiwa/theme.js' %}"></script>
+  <script src="{% static 'kamiwa/vendor/htmx.min.js' %}" defer></script>
+  <script src="{% static 'kamiwa/app.js' %}" defer></script>
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+<a class="skip-link" href="#main-content">رفتن به محتوای اصلی</a>
+<header class="site-header">
+  <div class="shell header-main">
+    <a class="wordmark" href="{% url 'market:landing' %}" aria-label="کامیوا، خانه">کامیوا<span class="brand-dot"></span></a>
+    {% if request.user.is_authenticated %}<form class="header-search" role="search" method="get" action="{% url 'market:home' %}"><label for="header-q" class="sr-only">جست‌وجو در آگهی‌ها</label>{% include 'market/includes/icon.html' with name='search' %}<input id="header-q" name="q" type="search" value="{{ request.GET.q }}" placeholder="جست‌وجوی برند، مدل یا نمایشگاه" autocomplete="off"><button class="button button-primary" type="submit">جست‌وجو</button></form>{% endif %}
+    <div class="header-actions">
+      {% if request.user.is_authenticated %}
+        {% if request.user.role == 'pro' or request.user.role == 'plus' %}<a class="button button-amber create-link" href="{% url 'market:listing_create' %}">{% include 'market/includes/icon.html' with name='plus' %}<span>ثبت آگهی</span></a>{% endif %}
+        <a class="button account-link" href="{% url 'market:dashboard' %}">{% include 'market/includes/icon.html' with name='user' %}<span>پنل من</span></a>
+      {% else %}<a class="button login-link" href="{% url 'market:login' %}">{% include 'market/includes/icon.html' with name='user' %}<span>ورود</span></a><a class="button button-amber" href="{% url 'market:register' %}">ثبت‌نام</a>{% endif %}
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="تغییر به حالت شب" title="تغییر حالت روز و شب">{% include 'market/includes/icon.html' with name='moon' %}</button>
+    </div>
+  </div>
+  {% if request.user.is_authenticated %}<nav class="header-cats" aria-label="منوی اصلی"><div class="shell header-cats-inner">
+    <a href="{% url 'market:home' %}" {% if request.resolver_match.url_name == 'home' and not request.GET.category and request.GET.view != 'sellers' %}aria-current="page"{% endif %}>همه آگهی‌ها</a>
+    {% for category in nav_categories %}<a href="{% url 'market:home' %}?category={{ category.pk }}" {% if request.GET.category == category.pk|stringformat:'s' %}aria-current="page"{% endif %}>{{ category.name }}</a>{% endfor %}
+    <span class="header-cats-sep" aria-hidden="true"></span>
+    <a href="{% url 'market:home' %}?view=sellers" {% if request.GET.view == 'sellers' %}aria-current="page"{% endif %}>نمایشگاه‌ها</a>
+    <a href="{% url 'market:inspections' %}" {% if request.resolver_match.url_name == 'inspections' %}aria-current="page"{% endif %}>کارشناسی</a>
+    {% if not request.user.is_staff and request.user.role != 'expert' %}<a href="{% url 'market:subscriptions' %}" {% if request.resolver_match.url_name == 'subscriptions' %}aria-current="page"{% endif %}>اشتراک‌ها</a>{% endif %}
+  </div></nav>{% endif %}
+</header>
+{% if demo_mode %}<div class="demo-banner">نسخه آزمایشی کامیوا · آگهی‌های نمونه و پرداخت‌ها آزمایشی هستند.</div>{% endif %}
+{% if messages %}<div class="shell flash-stack">{% for message in messages %}<div class="notice {{ message.tags }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}">{{ message }}</div>{% endfor %}</div>{% endif %}
+<main id="main-content" tabindex="-1">{% block content %}{% endblock %}</main>
+<footer class="site-footer"><div class="shell footer-grid"><div class="footer-brand"><a class="wordmark small" href="{% url 'market:landing' %}">کامیوا<span class="brand-dot"></span></a><p>بازار تخصصی خرید، فروش و کارشناسی ماشین‌های سنگین؛ با فروشندگان احراز هویت‌شده و قیمت‌گذاری کارشناسان معتبر.</p></div><nav aria-labelledby="footer-market"><h2 id="footer-market">بازار</h2><a href="{% url 'market:home' %}">آگهی‌ها</a><a href="{% url 'market:home' %}?view=sellers">نمایشگاه‌ها</a><a href="{% url 'market:inspections' %}">کارشناسی</a></nav><nav aria-labelledby="footer-account"><h2 id="footer-account">حساب کاربری</h2>{% if request.user.is_authenticated %}<a href="{% url 'market:dashboard' %}">پنل من</a><a href="{% url 'market:profile' %}">تنظیمات حساب</a>{% else %}<a href="{% url 'market:register' %}">ثبت‌نام</a><a href="{% url 'market:login' %}">ورود</a>{% endif %}{% if not request.user.is_staff and request.user.role != 'expert' %}<a href="{% url 'market:subscriptions' %}">اشتراک‌ها</a>{% endif %}</nav><nav aria-labelledby="footer-support"><h2 id="footer-support">پشتیبانی</h2><a href="{% url 'market:tickets' %}">ارتباط با پشتیبانی</a>{% if request.user.is_authenticated %}<a href="{% url 'market:ticket_create' %}">ثبت تیکت جدید</a>{% endif %}</nav></div><div class="shell footer-bottom"><p>© کامیوا · تمام حقوق محفوظ است.</p>{% if demo_mode %}<p>نسخه آزمایشی</p>{% endif %}</div></footer>
+{% if request.user.is_authenticated %}<nav class="mobile-nav" aria-label="دسترسی سریع"><a href="{% url 'market:home' %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>{% include 'market/includes/icon.html' with name='truck' %}<span>آگهی‌ها</span></a><a href="{% url 'market:compare' %}" {% if request.resolver_match.url_name == 'compare' %}aria-current="page"{% endif %}>{% include 'market/includes/icon.html' with name='compare' %}<span>مقایسه</span></a><a href="{% url 'market:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>{% include 'market/includes/icon.html' with name='user' %}<span>پنل من</span></a></nav>{% endif %}
+<div id="ui-announcement" class="sr-only" role="status" aria-live="polite"></div>
+{% block scripts %}{% endblock %}
+</body></html>

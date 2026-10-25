@@ -1,0 +1,31 @@
+{% extends 'base.html' %}{% load market_numbers %}{% block title %}پیگیری کارشناسی | کامیوا{% endblock %}{% block content %}<div class="shell panel-layout">{% include 'market/includes/panel_nav.html' %}<section class="panel-main">
+<div class="page-heading"><div><h1>{% include 'market/includes/emoji.html' with name='wrench' size=40 %} پیگیری کارشناسی</h1><p>{{ inspection.listing.title }}</p></div><span class="status-badge {{ inspection.status }}">{{ inspection.get_status_display }}</span></div>
+<section class="card">
+  {% with s=inspection.status %}
+  <ol class="emoji-steps" aria-label="مراحل کارشناسی">
+    <li class="{% if s == 'awaiting_payment' %}current{% elif s != 'cancelled' %}done{% endif %}">{% include 'market/includes/emoji.html' with name='card' size=40 %}<span>ثبت و پرداخت</span></li>
+    <li class="{% if s == 'paid' or s == 'assigned' %}current{% elif s == 'reported' or s == 'final' %}done{% endif %}">{% include 'market/includes/emoji.html' with name='truck' size=40 %}<span>تخصیص و بازدید</span></li>
+    <li class="{% if s == 'reported' %}current{% elif s == 'final' %}done{% endif %}">{% include 'market/includes/emoji.html' with name='clipboard' size=40 %}<span>بررسی گزارش</span></li>
+    <li class="{% if s == 'final' %}current{% endif %}">{% include 'market/includes/emoji.html' with name='trophy' size=40 %}<span>نتیجه نهایی</span></li>
+  </ol>
+  {% endwith %}
+  <dl class="spec-grid">
+    <div><dt>آگهی</dt><dd><a href="{% url 'market:listing_detail' inspection.listing.pk %}">{{ inspection.listing.title }}</a></dd></div>
+    <div><dt>استان</dt><dd>{{ inspection.listing.province }}</dd></div>
+    <div><dt>درخواست‌کننده</dt><dd>{{ inspection.requester.get_full_name|default:inspection.requester.username }}</dd></div>
+    <div><dt>کارشناس مسئول</dt><dd>{{ inspection.expert|default:'در انتظار تخصیص' }}</dd></div>
+    <div><dt>تاریخ درخواست</dt><dd>{{ inspection.created_at|jdatetime }}</dd></div>
+    <div><dt>وضعیت پرداخت شما</dt><dd>{% if payment %}{{ payment.get_status_display }}{% else %}درخواست متعلق به طرف دیگر معامله است{% endif %}</dd></div>
+  </dl>
+  <h2 class="sub-title section-gap">توضیحات هماهنگی</h2>
+  <p class="long-copy">{{ inspection.coordination_note|default:'توضیحی ثبت نشده است.' }}</p>
+  <div class="inline-actions section-gap">{% if payment and payment.status != 'success' %}<a class="button button-amber" href="{% url 'market:checkout' payment.pk %}">تکمیل پرداخت آزمایشی</a>{% endif %}{% if can_report %}<a class="button button-primary" href="{% url 'market:report_create' inspection.pk %}">{% if report %}ویرایش گزارش{% else %}ثبت گزارش کارشناسی{% endif %}</a>{% endif %}<a class="button" href="{% url 'market:inspections' %}">همه کارشناسی‌ها</a></div>
+</section>
+{% if report %}<section class="card section-gap">
+  <div class="card-head"><h2>{% include 'market/includes/emoji.html' with name='clipboard' size=28 %} گزارش کارشناسی</h2><span class="status-badge {{ report.status }}">{{ report.get_status_display }}</span></div>
+  <div class="expert-box">{% include 'market/includes/icon.html' with name='shield' %}<div><span>قیمت کارشناسی{% if report.status == 'final' %} تأییدشده{% endif %}</span><strong>{{ report.price|intcomma }} <small>تومان</small></strong>{% if report.finalized_at %}<p class="help-text">تاریخ تأیید: {{ report.finalized_at|jdatetime }}</p>{% endif %}</div></div>
+  <p class="long-copy section-gap">{{ report.summary }}</p>
+  <p class="help-text section-gap">کارشناس مسئول: {{ report.expert }} · ثبت‌کننده: {{ report.submitted_by.get_full_name|default:report.submitted_by.username }}</p>
+  {% if report.private_document %}<a class="button section-gap" href="{% url 'market:private_file' 'report' report.pk %}">دریافت فایل خصوصی گزارش</a>{% endif %}
+</section>{% elif inspection.status == 'reported' %}<div class="notice section-gap">{% include 'market/includes/emoji.html' with name='hourglass' size=24 %} گزارش ثبت شده و در انتظار تأیید مدیر است. نتیجه پس از نهایی‌شدن نمایش داده می‌شود.</div>{% endif %}
+</section></div>{% endblock %}

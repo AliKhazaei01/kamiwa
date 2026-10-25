@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% load market_numbers %}{% block title %}پشتیبانی | کامیوا{% endblock %}{% block content %}<div class="shell panel-layout">{% include 'market/includes/panel_nav.html' %}<section class="panel-main">
+<div class="page-heading"><div><h1>{% include 'market/includes/emoji.html' with name='chat' size=40 %} صندوق پشتیبانی</h1><p>پرسش‌ها و مشکلات خود را با تیم کامیوا مطرح کنید.</p></div><a class="button button-amber" href="{% url 'market:ticket_create' %}">{% include 'market/includes/icon.html' with name='plus' %} تیکت جدید</a></div>
+{% if tickets %}<ul class="ticket-list">{% for ticket in tickets %}
+  <li><a class="ticket-row" href="{% url 'market:ticket_detail' ticket.pk %}">
+    <span class="ticket-icon" aria-hidden="true">{% if ticket.status == 'answered' %}{% include 'market/includes/emoji.html' with name='envelope' size=30 %}{% elif ticket.status == 'closed' %}{% include 'market/includes/emoji.html' with name='check' size=30 %}{% else %}{% include 'market/includes/emoji.html' with name='chat' size=30 %}{% endif %}</span>
+    <span class="ticket-main"><strong>{{ ticket.subject }}</strong><span class="muted small">{% if perms.market.support_tickets %}{{ ticket.owner.get_full_name|default:ticket.owner.username }} · {% endif %}آخرین تغییر {{ ticket.updated_at|ago }} پیش</span></span>
+    <span class="status-badge {% if ticket.status == 'answered' %}success{% elif ticket.status == 'open' %}open{% endif %}">{{ ticket.get_status_display }}</span>
+    <span class="ticket-go" aria-hidden="true">{% include 'market/includes/icon.html' with name='arrow' %}</span>
+  </a></li>{% endfor %}</ul>
+{% else %}{% url 'market:ticket_create' as ticket_url %}{% include 'market/includes/empty.html' with heading='هنوز تیکتی ندارید' description='هر زمان به کمک نیاز داشتید، پیامتان را برای پشتیبانی بفرستید.' action_url=ticket_url action_label='ثبت تیکت جدید' emoji='chat' %}{% endif %}
+</section></div>{% endblock %}

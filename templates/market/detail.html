@@ -1,0 +1,82 @@
+{% extends 'base.html' %}{% load market_numbers %}{% block title %}{{ listing.title }} | کامیوا{% endblock %}{% block content %}<div class="shell page-wrap listing-page">
+<nav class="breadcrumbs" aria-label="مسیر صفحه"><a href="{% url 'market:home' %}">آگهی‌ها</a><span aria-hidden="true">/</span><a href="{% url 'market:home' %}?category={{ listing.category.root_id }}">{{ listing.category }}</a><span aria-hidden="true">/</span><span>{{ listing.title }}</span></nav>
+{% if can_edit and listing.rejection_reason %}<div class="notice error">علت رد آگهی: {{ listing.rejection_reason }}</div>{% endif %}
+{% if can_edit and listing.pending_data %}<div class="notice">ویرایش جدید آگهی در انتظار بررسی مدیر است. نسخه فعلی تا تصمیم مدیر نمایش داده می‌شود.</div>{% endif %}
+
+<header class="listing-head">
+  <div>
+    <h1>{{ listing.title }}</h1>
+    <ul class="spec-chips listing-head-meta">
+      <li>{% include 'market/includes/icon.html' with name='pin' %}{{ listing.province }}، {{ listing.city }}</li>
+      <li>{% include 'market/includes/icon.html' with name='clock' %}{{ listing.created_at|ago }} پیش</li>
+      <li>{% include 'market/includes/icon.html' with name='eye' %}{{ listing.view_total|default:0|intcomma }} بازدید</li>
+      {% if report %}<li class="chip-success">{% include 'market/includes/icon.html' with name='check' %}کارشناسی‌شده</li>{% endif %}
+      {% if listing.status == 'sold' %}<li class="chip-dark">فروخته‌شده</li>{% endif %}
+    </ul>
+  </div>
+  {% if can_interact %}<div class="listing-head-actions">
+    <form class="favorite-form-inline favorite-form" method="post" action="{% url 'market:favorite_toggle' listing.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="button favorite-text-button{% if listing.is_favorited %} is-active{% endif %}" type="submit" aria-pressed="{% if listing.is_favorited %}true{% else %}false{% endif %}" data-title="{{ listing.title }}">{% include 'market/includes/icon.html' with name='heart' %}<span data-favorite-text>{% if listing.is_favorited %}ذخیره‌شده{% else %}ذخیره آگهی{% endif %}</span></button></form>
+    <form method="post" action="{% url 'market:compare_toggle' listing.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="button" type="submit">{% include 'market/includes/icon.html' with name='compare' %}{% if listing.in_compare %}حذف از مقایسه{% else %}مقایسه{% endif %}</button></form>
+  </div>{% endif %}
+</header>
+
+<div class="detail-layout">
+<div class="detail-main">
+  <section class="detail-media" aria-label="تصاویر آگهی">
+    <div class="detail-stage"><img id="detail-image" src="{{ listing.image_url }}" alt="{{ listing.title }}" width="1200" height="800" fetchpriority="high">{% with count=listing.images.all|length %}{% if count > 1 %}<span class="stage-count">{% include 'market/includes/icon.html' with name='grid' %}{{ count|fa_digits }} تصویر</span>{% endif %}{% endwith %}</div>
+    <div class="gallery-thumbs">{% for picture in listing.images.all %}{% if picture.approved %}<button type="button" data-gallery-image="{{ picture.image.url }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="نمایش تصویر {{ forloop.counter }}"><img src="{{ picture.image.url }}" alt="{{ listing.title }}، تصویر {{ forloop.counter }}" width="120" height="80"></button>{% endif %}{% endfor %}</div>
+  </section>
+
+  <section class="card" aria-labelledby="specs-heading">
+    <div class="card-head"><h2 id="specs-heading">مشخصات ماشین</h2></div>
+    <dl class="spec-grid">
+      <div><dt>برند</dt><dd>{{ listing.brand }}</dd></div>
+      <div><dt>مدل</dt><dd>{{ listing.model }}</dd></div>
+      <div><dt>سال ساخت</dt><dd>{{ listing.year|fa_digits }}</dd></div>
+      <div><dt>کارکرد</dt><dd>{{ listing.mileage|intcomma }} کیلومتر</dd></div>
+      <div><dt>دسته‌بندی</dt><dd>{{ listing.category }}</dd></div>
+      <div><dt>محل آگهی</dt><dd>{{ listing.province }}، {{ listing.city }}</dd></div>
+    </dl>
+  </section>
+
+  <section class="card" aria-labelledby="desc-heading">
+    <div class="card-head"><h2 id="desc-heading">توضیحات فروشنده</h2></div>
+    <p class="long-copy">{{ listing.description|default:'توضیحی برای این آگهی ثبت نشده است.' }}</p>
+  </section>
+
+  {% if listing.videos.all %}<section class="card" aria-labelledby="videos-heading">
+    <div class="card-head"><h2 id="videos-heading">ویدیوهای آگهی</h2></div>
+    <div class="video-grid">{% for clip in listing.videos.all %}{% if clip.approved or can_edit %}<figure class="video-item"><video controls preload="metadata" playsinline width="{{ clip.width|default:1280 }}" height="{{ clip.height|default:720 }}"><source src="{{ clip.video.url }}" type="{{ clip.content_type }}">مرورگر شما پخش این ویدیو را پشتیبانی نمی‌کند.</video><figcaption class="help-text">ویدیو {{ forloop.counter|fa_digits }} · {{ clip.seconds|fa_digits }} ثانیه{% if not clip.approved %} · <span class="status-badge">در انتظار تأیید</span>{% endif %}</figcaption></figure>{% endif %}{% endfor %}</div>
+  </section>{% endif %}
+
+  {% if market_position %}<section class="card" aria-labelledby="position-heading">
+    <div class="card-head"><h2 id="position-heading">مقایسه قیمت آگهی‌ها</h2><span class="status-badge {% if market_position.status == 'within' %}success{% elif market_position.status == 'insufficient' %}{% else %}warning{% endif %}">{{ market_position.label }}</span></div>
+    {% if market_position.status != 'insufficient' %}<p class="help-text">بازه میانی {{ market_position.count|fa_digits }} آگهی مشابه در سراسر ایران:</p><p class="position-range">{{ market_position.low|floatformat:'0'|intcomma }} تا {{ market_position.high|floatformat:'0'|intcomma }} <small>تومان</small></p>{% endif %}
+    <p class="help-text">این مقایسه بر اساس قیمت پیشنهادی آگهی‌هاست و جایگزین قیمت کارشناسی نیست.</p>
+  </section>{% endif %}
+
+  {% if price_history %}<section class="card" aria-labelledby="history-heading">
+    <div class="card-head"><h2 id="history-heading">تاریخچه قیمت پیشنهادی</h2></div>
+    <ol class="price-timeline">{% for point in price_history %}<li><strong>{{ point.new_price|intcomma }} تومان</strong><time>{{ point.created_at|jdate }}</time></li>{% endfor %}</ol>
+  </section>{% endif %}
+</div>
+
+<aside class="detail-sidebar">
+  <section class="card price-card">
+    <span class="price-label">قیمت پیشنهادی فروشنده</span>
+    <div class="price-big">{{ listing.price|intcomma }} <small>تومان</small></div>
+    <span class="nego nego-{{ listing.negotiability }}">{{ listing.get_negotiability_display }}</span>
+    {% if report %}<div class="expert-box">{% include 'market/includes/icon.html' with name='shield' %}<div><span>قیمت کارشناسی تأییدشده</span><strong>{{ report.price|intcomma }} <small>تومان</small></strong><p class="help-text">تاریخ کارشناسی: {{ report.finalized_at|jdate }}</p></div></div>{% endif %}
+    {% if listing.status == 'sold' %}<div class="notice">این آگهی فروخته شده است.</div>{% endif %}
+    {% if can_request_inspection %}<a class="button button-amber button-wide" href="{% url 'market:inspection_create' listing.pk %}">{% include 'market/includes/icon.html' with name='shield' %} درخواست کارشناسی</a><p class="help-text center">بررسی و قیمت‌گذاری توسط کارشناس معتبر استان، با هزینه جداگانه.</p>{% endif %}
+    {% if can_edit %}<div class="owner-actions"><a class="button button-wide" href="{% url 'market:listing_edit' listing.pk %}">{% include 'market/includes/icon.html' with name='edit' %} ویرایش مشخصات</a><a class="button button-wide" href="{% url 'market:listing_price' listing.pk %}">به‌روزرسانی قیمت</a></div>{% endif %}
+  </section>
+  {% if seller %}<section class="card seller-card-side">
+    <div class="seller-line"><div class="avatar">{% if seller.avatar %}<img src="{{ seller.avatar.url }}" alt="{{ seller.display_name }}">{% else %}{% include 'market/includes/icon.html' with name='user' %}{% endif %}</div><div><a href="{% url 'market:seller_page' seller.slug %}"><strong>{{ seller.display_name }}</strong></a><span class="muted small">{{ seller.user.get_role_display }} · {{ seller.user.province }}</span></div></div>
+    {% include 'market/includes/contacts.html' %}
+    <a class="section-link" href="{% url 'market:seller_page' seller.slug %}">همه آگهی‌های فروشنده {% include 'market/includes/icon.html' with name='arrow' %}</a>
+  </section>{% endif %}
+  <p class="safety-note">{% include 'market/includes/icon.html' with name='shield' %} پیش از هر پرداخت، خودرو و مدارک آن را حضوری بررسی کنید و از کارشناسی کامیوا کمک بگیرید.</p>
+</aside>
+</div>
+</div>{% endblock %}

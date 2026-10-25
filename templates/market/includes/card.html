@@ -1,0 +1,20 @@
+{% load market_numbers %}<article class="listing-card">
+  <a class="listing-media" href="{% url 'market:listing_detail' listing.pk %}" tabindex="-1" aria-hidden="true"><img src="{{ listing.image_url }}" alt="" loading="lazy" width="480" height="360">
+    {% if listing.expert_price %}<span class="media-badge">{% include 'market/includes/icon.html' with name='check' %} کارشناسی‌شده</span>{% endif %}
+    {% if listing.status == 'sold' %}<span class="media-badge sold{% if listing.expert_price %} stacked{% endif %}">فروخته‌شده</span>{% endif %}
+  </a>
+  <div class="listing-body">
+    <a class="listing-title" href="{% url 'market:listing_detail' listing.pk %}">{{ listing.title }}</a>
+    <ul class="spec-chips" aria-label="مشخصات">
+      <li>{{ listing.year|fa_digits }}</li>
+      <li>{{ listing.mileage|intcomma }} کیلومتر</li>
+      <li>{% include 'market/includes/icon.html' with name='pin' %}{{ listing.province }}</li>
+    </ul>
+    <div class="listing-price-row"><div class="listing-price">{{ listing.price|intcomma }} <small>تومان</small></div><span class="nego nego-{{ listing.negotiability }}">{{ listing.get_negotiability_display }}</span></div>
+    {% if listing.expert_price %}<div class="card-expert-price">{% include 'market/includes/icon.html' with name='shield' %}<span>قیمت کارشناسی <strong>{{ listing.expert_price|intcomma }}</strong> تومان</span></div>{% endif %}
+    <div class="listing-card-bottom">
+      <div class="card-meta"><time datetime="{{ listing.created_at|date:'c' }}">{{ listing.created_at|ago }} پیش</time><span class="card-views" title="بازدید یکتای روزانه">{% include 'market/includes/icon.html' with name='eye' %}{{ listing.view_total|default:0|intcomma }}</span></div>
+      <div class="card-actions"><form method="post" action="{% url 'market:compare_toggle' listing.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="icon-action compare-button{% if listing.in_compare %} selected{% endif %}" type="submit" aria-pressed="{% if listing.in_compare %}true{% else %}false{% endif %}" aria-label="{% if listing.in_compare %}حذف از مقایسه{% else %}افزودن به مقایسه{% endif %}: {{ listing.title }}" title="مقایسه">{% include 'market/includes/icon.html' with name='compare' %}</button></form><form class="favorite-form card-favorite" method="post" action="{% url 'market:favorite_toggle' listing.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="icon-action favorite-button{% if listing.is_favorited %} is-active{% endif %}" aria-label="{% if listing.is_favorited %}حذف از{% else %}افزودن به{% endif %} علاقه‌مندی‌ها: {{ listing.title }}" title="علاقه‌مندی" data-title="{{ listing.title }}" type="submit" aria-pressed="{% if listing.is_favorited %}true{% else %}false{% endif %}">{% include 'market/includes/icon.html' with name='heart' %}</button></form></div>
+    </div>
+  </div>
+</article>

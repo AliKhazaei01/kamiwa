@@ -1,0 +1,15 @@
+[Unit]
+Description=Kamiwa encrypted daily backup with restore verification
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/srv/kamiwa
+ExecStart=/srv/kamiwa/.venv/bin/python /srv/kamiwa/deploy/backup.py --verify
+# Keep the newest 14 backups on the server.
+ExecStartPost=/bin/sh -c 'ls -1t /srv/kamiwa/backups/kamiwa-*.kmw | tail -n +15 | xargs -r rm -f --'
+PrivateTmp=true
+Nice=10
+CPUWeight=20
+IOWeight=20

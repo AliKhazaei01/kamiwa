@@ -1,0 +1,93 @@
+{% extends 'base.html' %}{% load static market_numbers %}{% block body_class %}is-landing{% endblock %}{% block content %}
+<section class="lx-hero" aria-labelledby="hero-title">
+  <div class="lx-hero-media" aria-hidden="true"><img src="{% static 'kamiwa/images/truck-white.webp' %}" alt="" width="1600" height="1067" fetchpriority="high"></div>
+  <div class="shell lx-hero-inner">
+    <div class="lx-copy">
+      <p class="lx-kicker">بازار ممتاز ماشین‌آلات سنگین</p>
+      <h1 id="hero-title">قدرت، <b>اعتماد</b> <br>و انتخابی بی‌نقص</h1>
+      <p class="lx-lead">کشنده، کامیون و تریلر از فروشندگان احراز هویت‌شده؛ با کارشناسی رسمی پیش از خرید.</p>
+      <form class="lx-search" method="get" action="{% url 'market:home' %}" role="search" aria-label="جست‌وجوی آگهی">
+        <div class="lx-field"><label for="hero-category">دسته</label><select id="hero-category" name="category"><option value="">همه دسته‌ها</option>{% for tile in category_tiles %}<option value="{{ tile.category.pk }}">{{ tile.category.name }}</option>{% endfor %}</select></div>
+        <div class="lx-field"><label for="hero-province">استان</label><select id="hero-province" name="province"><option value="all">همه استان‌ها</option>{% for province in provinces %}<option value="{{ province.pk }}">{{ province.name }}</option>{% endfor %}</select></div>
+        <div class="lx-field"><label for="hero-q">برند یا مدل</label><input id="hero-q" name="q" type="search" placeholder="مثلاً ولوو FH یا اسکانیا" autocomplete="off"></div>
+        <button type="submit">{% include 'market/includes/icon.html' with name='search' %} جست‌وجو</button>
+      </form>
+      <ul class="lx-trust" aria-label="مزیت‌ها">
+        <li>{% include 'market/includes/icon.html' with name='shield' %} فروشندگان احراز هویت‌شده</li>
+        <li>{% include 'market/includes/icon.html' with name='check' %} کارشناسی با قیمت ثبت‌شده</li>
+        <li>{% include 'market/includes/icon.html' with name='compare' %} مقایسه هم‌زمان آگهی‌ها</li>
+      </ul>
+    </div>
+  </div>
+  <span class="lx-scroll" aria-hidden="true"></span>
+</section>
+
+<section class="shell" aria-label="آمار کامیوا">
+  <div class="lx-stats">
+    <div data-reveal><strong data-count="{{ stats.listings }}">{{ stats.listings|intcomma }}</strong><span>آگهی فعال در سراسر ایران</span></div>
+    <div data-reveal><strong data-count="{{ stats.provinces }}">{{ stats.provinces|intcomma }}</strong><span>استان تحت پوشش</span></div>
+    <div data-reveal><strong data-count="{{ stats.sellers }}">{{ stats.sellers|intcomma }}</strong><span>فروشنده و نمایشگاه تأییدشده</span></div>
+    <div data-reveal><strong data-count="{{ stats.experts }}">{{ stats.experts|intcomma }}</strong><span>کارشناس رسمی</span></div>
+  </div>
+</section>
+
+<section class="lx-section" aria-labelledby="categories-heading">
+  <div class="shell lx-head" data-reveal><div><p class="eyebrow">دسته‌بندی‌ها</p><h2 id="categories-heading">ماشین مناسب کار شما</h2></div><a class="button" href="{% url 'market:home' %}">همه آگهی‌ها {% include 'market/includes/icon.html' with name='arrow' %}</a></div>
+  <div class="lx-cats">{% for tile in category_tiles %}<a class="lx-cat" href="{% url 'market:home' %}?category={{ tile.category.pk }}" data-reveal>
+    {% if tile.emoji == 'truck' %}<img src="{% static 'kamiwa/images/truck-red-sm.webp' %}" alt="" width="800" height="533" loading="lazy">{% elif tile.emoji == 'package' %}<img src="{% static 'kamiwa/images/trailer-sm.webp' %}" alt="" width="800" height="533" loading="lazy">{% else %}<img src="{% static 'kamiwa/images/truck-white-sm.webp' %}" alt="" width="800" height="533" loading="lazy">{% endif %}
+    <span class="lx-cat-text"><span><b>{{ tile.category.name }}</b><span>{{ tile.count|intcomma }} آگهی فعال</span></span><span class="lx-arrow" aria-hidden="true">{% include 'market/includes/icon.html' with name='arrow' %}</span></span>
+  </a>{% endfor %}</div>
+</section>
+
+<section class="shell lx-section" aria-labelledby="why-heading">
+  <div class="lx-head" data-reveal><div><p class="eyebrow">چرا کامیوا</p><h2 id="why-heading">معامله‌ای مطمئن، از ابتدا تا انتها</h2><p>هر چیزی که برای خرید و فروش آگاهانه‌ی یک ماشین سنگین لازم دارید، یک‌جا.</p></div></div>
+  <div class="lx-features">
+    <article data-reveal>{% include 'market/includes/icon.html' with name='shield' %}<h3>فروشنده‌ی شناخته‌شده</h3><p>هویت فروشندگان و مدارک نمایشگاه‌ها پیش از فعالیت بررسی می‌شود.</p></article>
+    <article data-reveal>{% include 'market/includes/icon.html' with name='search' %}<h3>جست‌وجوی دقیق</h3><p>بر اساس دسته، برند، استان، قیمت و کارشناسی‌شده‌ها فیلتر کنید.</p></article>
+    <article data-reveal>{% include 'market/includes/icon.html' with name='compare' %}<h3>مقایسه‌ی هوشمند</h3><p>سه آگهی را کنار هم ببینید و جایگاه قیمت را با آگهی‌های مشابه بسنجید.</p></article>
+    <article data-reveal>{% include 'market/includes/icon.html' with name='clipboard' %}<h3>کارشناسی معتبر</h3><p>کارشناس استان خودرو را بررسی می‌کند و قیمت تأییدشده در آگهی ثبت می‌شود.</p></article>
+  </div>
+</section>
+
+<section class="lx-split" aria-labelledby="how-heading">
+  <div class="lx-split-media"><img src="{% static 'kamiwa/images/truck-red.webp' %}" alt="کشنده‌ی قرمز در محوطه‌ی نمایشگاه" width="1600" height="1067" loading="lazy"></div>
+  <div class="lx-split-copy" data-reveal>
+    <p class="eyebrow">کارشناسی</p>
+    <h2 id="how-heading">پیش از تصمیم نهایی، <br>مطمئن شوید</h2>
+    <p>فروشنده یا خریدار می‌تواند بررسی تخصصی خودرو را درخواست کند.</p>
+    <ol class="lx-steps">
+      <li><h3>ثبت درخواست</h3><p>آگهی موردنظر را انتخاب کنید و توضیحات هماهنگی بازدید را ثبت کنید.</p></li>
+      <li><h3>بررسی کارشناس</h3><p>پس از پرداخت هزینه، یک کارشناس معتبر استان به درخواست اختصاص می‌یابد.</p></li>
+      <li><h3>نمایش نتیجه</h3><p>گزارش پس از تأیید مدیر نهایی می‌شود و قیمت کارشناسی همراه تاریخ در آگهی نمایش داده می‌شود.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="shell lx-section" aria-labelledby="plans-heading">
+  <div class="lx-head" data-reveal><div><p class="eyebrow">حساب‌ها</p><h2 id="plans-heading">برای هر نقش، یک حساب</h2><p>از پیدا کردن ماشین مناسب تا مدیریت نمایشگاه؛ امکانات متناسب با کار شما.</p></div></div>
+  <div class="lx-plans" data-reveal>
+    <article class="lx-plan">{% include 'market/includes/icon.html' with name='search' %}<h3>خریدار</h3><p>برای انتخاب آگاهانه‌ی ماشین سنگین</p><ul><li>جست‌وجو در آگهی‌های سراسر ایران</li><li>مقایسه و ذخیره‌ی آگهی‌های موردعلاقه</li><li>ارتباط مستقیم و درخواست کارشناسی</li></ul><a class="button" href="{% url 'market:register' %}?role=buyer">ساخت حساب خریدار</a></article>
+    <article class="lx-plan">{% include 'market/includes/icon.html' with name='star' %}<h3>پلاس</h3><p>برای معامله‌گران حرفه‌ای</p><ul><li>صفحه‌ی اختصاصی با هویت شخصی</li><li>۲۵ آگهی فعال در هر دسته‌ی اصلی</li><li>آمار بازدید و مدیریت آگهی‌ها</li></ul><a class="button" href="{% url 'market:register' %}?role=plus">ساخت حساب پلاس</a></article>
+    <article class="lx-plan featured"><span class="lx-tag">ویژه‌ی نمایشگاه‌ها</span>{% include 'market/includes/icon.html' with name='crown' %}<h3>پرو</h3><p>برای نمایشگاه‌ها و فروشگاه‌ها</p><ul><li>ویترین اختصاصی نمایشگاه شما</li><li>۵۰ آگهی فعال در هر دسته‌ی اصلی</li><li>ویدیوی آگهی و تحلیل قیمت</li></ul><a class="button button-amber" href="{% url 'market:register' %}?role=pro">ساخت حساب پرو</a></article>
+  </div>
+  <p class="help-text section-gap">هر سه حساب با اشتراک فعال می‌شوند. تعرفه و مدت بسته‌ها در صفحه‌ی اشتراک نمایش داده می‌شود.</p>
+</section>
+
+<section class="shell lx-section lx-faq" aria-labelledby="faq-heading">
+  <div data-reveal><p class="eyebrow">پرسش‌های متداول</p><h2 id="faq-heading" class="lx-head-title">پاسخ به پرسش‌های شما</h2><p class="muted section-gap">برای راهنمایی بیشتر، از پنل خود با پشتیبانی کامیوا در ارتباط باشید.</p></div>
+  <div data-reveal>
+    <details><summary>آیا بدون ثبت‌نام می‌توانم آگهی‌ها را ببینم؟</summary><p>برای مشاهده‌ی کامل آگهی‌ها، جست‌وجو و تماس با فروشندگان، ثبت‌نام، تأیید هویت و اشتراک فعال لازم است.</p></details>
+    <details><summary>قیمت فروشنده با قیمت کارشناسی چه تفاوتی دارد؟</summary><p>قیمت پیشنهادی را فروشنده تعیین می‌کند. قیمت کارشناسی نتیجه‌ی گزارش تأییدشده است و فروشنده امکان تغییر یا پنهان‌کردن آن را ندارد.</p></details>
+    <details><summary>بعد از پایان اشتراک چه اتفاقی می‌افتد؟</summary><p>آگهی‌های فروشنده از نمایش عمومی خارج می‌شوند. پنل، تیکت‌ها و امکان تمدید در دسترس باقی می‌مانند.</p></details>
+    <details><summary>آیا اکنون پرداخت واقعی انجام می‌شود؟</summary><p>این نسخه آزمایشی است. پرداخت، پیامک و ایمیل شبیه‌سازی می‌شوند و هیچ مبلغ واقعی برداشت نمی‌شود.</p></details>
+  </div>
+</section>
+
+<section class="lx-cta" aria-labelledby="cta-heading">
+  <img src="{% static 'kamiwa/images/trailer.webp' %}" alt="" width="1600" height="1067" loading="lazy">
+  <div class="shell">
+    <h2 id="cta-heading">همین حالا <br><b>شروع کنید</b></h2>
+    <div class="lx-cta-actions"><a class="button button-amber" href="{% url 'market:register' %}">ساخت حساب</a><a class="button button-ghost" href="{% url 'market:login' %}">ورود به حساب</a></div>
+  </div>
+</section>
+{% endblock %}

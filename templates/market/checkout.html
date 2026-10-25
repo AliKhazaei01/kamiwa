@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% load market_numbers %}{% block title %}پرداخت آزمایشی | کامیوا{% endblock %}{% block content %}<div class="shell page-wrap">
+<div class="checkout-card">
+<section class="card receipt">
+  <div class="receipt-head">
+    {% if payment.status == 'success' %}{% include 'market/includes/emoji.html' with name='party' size=88 class='float' loading='eager' %}{% elif payment.status == 'failure' %}{% include 'market/includes/emoji.html' with name='money-wings' size=88 loading='eager' %}{% elif payment.status == 'delayed' %}{% include 'market/includes/emoji.html' with name='hourglass' size=88 class='float' loading='eager' %}{% else %}{% include 'market/includes/emoji.html' with name='card' size=88 class='float' loading='eager' %}{% endif %}
+    <h1>{% if payment.status == 'success' %}پرداخت آزمایشی موفق بود{% elif payment.status == 'failure' %}پرداخت آزمایشی ناموفق بود{% elif payment.status == 'delayed' %}پرداخت در انتظار پاسخ{% else %}پرداخت آزمایشی{% endif %}</h1>
+    <p>{% if payment.status == 'success' %}{% if payment.kind == 'subscription' %}اعتبار اشتراک به حساب شما اضافه شد.{% else %}درخواست کارشناسی برای تخصیص کارشناس آماده است.{% endif %}{% elif payment.status == 'failure' %}می‌توانید نتیجه موفق را دوباره شبیه‌سازی کنید.{% elif payment.status == 'delayed' %}برای تکمیل، نتیجه نهایی را انتخاب کنید.{% else %}هیچ مبلغ واقعی از حساب شما برداشت نمی‌شود.{% endif %}</p>
+  </div>
+  <div class="receipt-amount"><span>مبلغ آزمایشی</span><strong>{{ payment.amount|intcomma }} <small>تومان</small></strong></div>
+  <dl class="payment-details">
+    <div><dt>بابت</dt><dd>{% if payment.kind == 'subscription' %}{{ payment.plan.name }}{% else %}کارشناسی آگهی{% endif %}</dd></div>
+    {% if payment.kind == 'subscription' %}<div><dt>مدت اشتراک</dt><dd>{{ payment.duration_days|intcomma }} روز</dd></div>{% endif %}
+    <div><dt>وضعیت</dt><dd><span class="status-badge {{ payment.status }}">{{ payment.get_status_display }}</span></dd></div>
+    <div><dt>تاریخ ایجاد</dt><dd>{{ payment.created_at|jdatetime }}</dd></div>
+  </dl>
+  {% if payment.status != 'success' %}<form method="post" class="receipt-actions">{% csrf_token %}<button class="button button-amber button-wide" type="submit" name="outcome" value="success">{% include 'market/includes/icon.html' with name='check' %} شبیه‌سازی پرداخت موفق</button><div class="inline-actions"><button class="button" type="submit" name="outcome" value="failure">شبیه‌سازی ناموفق</button><button class="button" type="submit" name="outcome" value="delay">شبیه‌سازی تأخیر</button></div></form>
+  {% else %}{% if payment.inspection_id %}<a class="button button-primary button-wide" href="{% url 'market:inspection_detail' payment.inspection_id %}">پیگیری درخواست کارشناسی</a>{% else %}<a class="button button-primary button-wide" href="{% url 'market:dashboard' %}">رفتن به پنل من</a>{% endif %}{% endif %}
+  <p class="help-text center">شناسه پیگیری: <bdi>{{ payment.reference }}</bdi></p>
+  <p class="safety-note">{% include 'market/includes/icon.html' with name='shield' %} نسخه آزمایشی: هیچ مبلغ واقعی از حساب شما برداشت نمی‌شود.</p>
+</section>
+</div>
+</div>{% endblock %}

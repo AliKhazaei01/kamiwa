@@ -1,0 +1,58 @@
+{% extends 'base.html' %}{% block title %}ثبت‌نام | کامیوا{% endblock %}{% block content %}<div class="shell page-wrap">
+<div class="wizard-shell">
+  <aside class="wizard-aside" aria-hidden="true">
+    {% include 'market/includes/emoji.html' with name='rocket' size=96 class='float' loading='eager' %}
+    <h2>به کامیوا خوش آمدید</h2>
+    <p>در چند قدم حساب خود را بسازید. اطلاعات هویتی شما فقط برای مدیران مجاز قابل مشاهده است.</p>
+    <ul class="wizard-perks"><li>{% include 'market/includes/emoji.html' with name='shield' size=28 loading='eager' %} هویت و مدارک خصوصی می‌مانند</li><li>{% include 'market/includes/emoji.html' with name='lock' size=28 loading='eager' %} رمز شما رمزنگاری‌شده ذخیره می‌شود</li><li>{% include 'market/includes/emoji.html' with name='check' size=28 loading='eager' %} پس از تأیید هویت، بازار فعال می‌شود</li></ul>
+  </aside>
+  <form class="surface wizard" method="post" enctype="multipart/form-data" data-username-url="{% url 'market:username_check' %}" data-wizard novalidate>
+    {% csrf_token %}
+    <div class="wizard-head"><h1>حساب کامیوا را بسازید</h1>
+      <ol class="stepper" aria-label="مراحل ثبت‌نام">
+        <li data-step-tab="1">نوع حساب</li><li data-step-tab="2">مشخصات</li><li data-step-tab="3">مدارک</li><li data-step-tab="4" data-step-roles="plus pro">صفحه فروشنده</li>
+      </ol>
+    </div>
+    {% if form.non_field_errors %}<div class="notice error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+
+    <section class="wizard-step" data-step="1" aria-labelledby="step1-title">
+      <h2 id="step1-title">{% include 'market/includes/emoji.html' with name='sparkles' size=30 %} نوع حساب و اطلاعات ورود</h2>
+      <fieldset class="role-cards"><legend class="sr-only">نوع حساب</legend>
+        {% with current=form.role.value|default:'buyer' %}
+        <label class="role-card"><input type="radio" name="role" value="buyer"{% if current == 'buyer' %} checked{% endif %}>{% include 'market/includes/emoji.html' with name='search' size=56 %}<strong>خریدار</strong><span>جست‌وجو، مقایسه و کارشناسی</span></label>
+        <label class="role-card"><input type="radio" name="role" value="plus"{% if current == 'plus' %} checked{% endif %}>{% include 'market/includes/emoji.html' with name='star' size=56 %}<strong>پلاس</strong><span>فروشنده و معامله‌گر حرفه‌ای</span></label>
+        <label class="role-card"><input type="radio" name="role" value="pro"{% if current == 'pro' %} checked{% endif %}>{% include 'market/includes/emoji.html' with name='crown' size=56 %}<strong>پرو</strong><span>نمایشگاه و فروشگاه</span></label>
+        {% endwith %}
+      </fieldset>
+      {% if form.role.errors %}<div class="field-errors" role="alert">{{ form.role.errors }}</div>{% endif %}
+      <div class="form-grid">{% include 'market/includes/field.html' with field=form.username %}{% include 'market/includes/field.html' with field=form.password1 %}{% include 'market/includes/field.html' with field=form.password2 %}</div>
+    </section>
+
+    <section class="wizard-step" data-step="2" aria-labelledby="step2-title">
+      <h2 id="step2-title">{% include 'market/includes/emoji.html' with name='bust' size=30 %} مشخصات هویتی و تماس</h2>
+      <div class="form-grid">{% include 'market/includes/field.html' with field=form.first_name %}{% include 'market/includes/field.html' with field=form.last_name %}{% include 'market/includes/field.html' with field=form.national_id %}{% include 'market/includes/field.html' with field=form.birth_date %}{% include 'market/includes/field.html' with field=form.mobile %}{% include 'market/includes/field.html' with field=form.email %}{% include 'market/includes/field.html' with field=form.province %}{% include 'market/includes/field.html' with field=form.city %}</div>
+    </section>
+
+    <section class="wizard-step" data-step="3" aria-labelledby="step3-title">
+      <h2 id="step3-title">{% include 'market/includes/emoji.html' with name='clipboard' size=30 %} مدارک هویتی</h2>
+      <p class="form-intro">تصویر کارت ملی و صفحه اول شناسنامه را بارگذاری کنید. این فایل‌ها خصوصی‌اند و فقط مدیران مجاز آن‌ها را می‌بینند.</p>
+      <div class="upload-grid">{% include 'market/includes/field.html' with field=form.identity_document %}{% include 'market/includes/field.html' with field=form.birth_certificate %}</div>
+    </section>
+
+    <section class="wizard-step" data-step="4" data-step-roles="plus pro" aria-labelledby="step4-title">
+      <h2 id="step4-title">{% include 'market/includes/emoji.html' with name='office' size=30 %} صفحه اختصاصی فروشنده</h2>
+      <div data-roles="plus pro">{% include 'market/includes/field.html' with field=form.slug %}{% include 'market/includes/field.html' with field=form.avatar %}<p class="help-text">حساب پلاس به عکس پرسنلی صاحب حساب نیاز دارد.</p></div>
+      <div data-roles="pro" class="section-gap"><h3 class="sub-title">اطلاعات نمایشگاه</h3><div class="form-grid">{% include 'market/includes/field.html' with field=form.display_name %}{% include 'market/includes/field.html' with field=form.address %}{% include 'market/includes/field.html' with field=form.activity %}{% include 'market/includes/field.html' with field=form.license_document %}</div></div>
+    </section>
+
+    <div class="notice wizard-note">{% include 'market/includes/emoji.html' with name='bell' size=24 %} پس از ثبت‌نام، ایمیل و همراه خود را تأیید کنید. پس از تأیید هویت و خرید اشتراک، امکانات حساب فعال می‌شوند.</div>
+    <div class="form-actions wizard-actions">
+      <button class="button" type="button" data-wizard-prev hidden>مرحله قبل</button>
+      <button class="button button-primary" type="button" data-wizard-next hidden>مرحله بعد</button>
+      <button class="button button-amber" type="submit" data-wizard-submit>ثبت‌نام و ادامه</button>
+      <a class="button wizard-login" href="{% url 'market:login' %}">قبلاً ثبت‌نام کرده‌ام</a>
+    </div>
+  </form>
+</div>
+</div>{% endblock %}
